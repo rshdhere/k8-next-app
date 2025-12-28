@@ -36,9 +36,34 @@ jobs:
           git clone https://github.com/rshdhere/argocd-deployment.git
           cd argocd-deployment
 
-          sed -i 's|image: rshdhere/k8s-argo-next-app:.*|image: rshdhere/k8s-argo-next-app:${{ github.sha }}|' manifest.yaml
+          # Debug: Show current manifest content
+          echo "Current manifest.yaml content:"
+          cat manifest.yaml || echo "manifest.yaml not found"
+          
+          # Check if the image pattern exists in the file
+          if grep -q "rshdhere/k8s-argo-next-app" manifest.yaml; then
+            echo "Found k8s-argo-next-app image in manifest.yaml"
+            # Update image tag (handle various whitespace and format patterns)
+            sed -i 's|rshdhere/k8s-argo-next-app:[^[:space:]]*|rshdhere/k8s-argo-next-app:${{ github.sha }}|g' manifest.yaml
+            echo "Updated image tag to: rshdhere/k8s-argo-next-app:${{ github.sha }}"
+          else
+            echo "Warning: k8s-argo-next-app image not found in manifest.yaml"
+            echo "Searching for any rshdhere image references:"
+            grep -i "rshdhere" manifest.yaml || echo "No rshdhere images found"
+          fi
+          
+          # Debug: Show updated manifest content
+          echo "Updated manifest.yaml content:"
+          cat manifest.yaml
+          
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
           git add .
-          git commit -m "feat: update k8s-argo-next-app server image tags to ${{ github.sha }}"
-          git push https://$PAT@github.com/rshdhere/argocd-deployment.git main
+          
+          # Only commit and push if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit. Image tag may already be up to date."
+          else
+            git commit -m "feat: update k8s-argo-next-app server image tags to ${{ github.sha }}"
+            git push https://$PAT@github.com/rshdhere/argocd-deployment.git main
+          fi
