@@ -34,6 +34,7 @@ jobs:
           PAT: ${{ secrets.PAT }}
         run: |
           git clone https://github.com/rshdhere/argocd-deployment.git
+          cd argocd-deployment
 
           sed -i 's|image: rshdhere/:.*|image: rshdhere/k8-next-app:${{ github.sha }}|' manifest.yaml
           git config user.name "GitHub Actions Bot"
