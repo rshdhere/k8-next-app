@@ -28,3 +28,16 @@ jobs:
           file: Dockerfile
           push: true
           tags: rshdhere/k8s-argo-next-app:${{ github.sha }}
+
+      - name: Clone staging-ops repo, update image tags, and push tags
+        env:
+          PAT: ${{ secrets.PAT }}
+        run: |
+          git clone https://github.com/rshdhere/argocd-deployment.git
+
+          sed -i 's|image: rshdhere/:.*|image: rshdhere/k8-next-app:${{ github.sha }}|' manifest.yaml
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "feat: update k8-next-app server image tags to ${{ github.sha }}"
+          git push https://$PAT@github.com/rshdhere/argocd-deployment.git main
