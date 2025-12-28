@@ -36,7 +36,7 @@ jobs:
           git clone https://github.com/rshdhere/argocd-deployment.git
           cd argocd-deployment
 
-          sed -i 's|image: rshdhere/:.*|image: rshdhere/k8-next-app:${{ github.sha }}|' manifest.yaml
+          sed -i 's|image: rshdhere/k8-next-app:.*|image: rshdhere/k8-next-app:${{ github.sha }}|' manifest.yaml
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
           git add .
